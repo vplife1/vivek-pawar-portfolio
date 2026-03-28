@@ -18,9 +18,15 @@ export default function AnimatedBackground() {
         let animationFrameId: number;
         let particles: Particle[] = [];
 
+        // Store width and height in variables to keep TypeScript happy
+        let canvasWidth = window.innerWidth;
+        let canvasHeight = window.innerHeight;
+
         const resize = () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            canvasWidth = window.innerWidth;
+            canvasHeight = window.innerHeight;
+            canvas.width = canvasWidth;
+            canvas.height = canvasHeight;
             initParticles();
         };
 
@@ -32,9 +38,9 @@ export default function AnimatedBackground() {
             radius: number;
 
             constructor() {
-                // Added "!" to assure TypeScript canvas is not null
-                this.x = Math.random() * canvas!.width;
-                this.y = Math.random() * canvas!.height;
+                // Now using our safe variables instead of canvas.width
+                this.x = Math.random() * canvasWidth;
+                this.y = Math.random() * canvasHeight;
                 this.vx = (Math.random() - 0.5) * 0.3;
                 this.vy = (Math.random() - 0.5) * 0.3;
                 this.radius = Math.random() * 1.5 + 0.5;
@@ -44,9 +50,9 @@ export default function AnimatedBackground() {
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Added "!" here as well
-                if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
-                if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
+                // Bounce off edges using safe variables
+                if (this.x < 0 || this.x > canvasWidth) this.vx *= -1;
+                if (this.y < 0 || this.y > canvasHeight) this.vy *= -1;
             }
 
             draw() {
@@ -64,7 +70,7 @@ export default function AnimatedBackground() {
         };
 
         const animate = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
             particles.forEach((p) => {
                 p.update();
