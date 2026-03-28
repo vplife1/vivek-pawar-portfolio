@@ -32,9 +32,9 @@ export default function AnimatedBackground() {
             radius: number;
 
             constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                // Slow drifting motion
+                // Added "!" to assure TypeScript canvas is not null
+                this.x = Math.random() * canvas!.width;
+                this.y = Math.random() * canvas!.height;
                 this.vx = (Math.random() - 0.5) * 0.3;
                 this.vy = (Math.random() - 0.5) * 0.3;
                 this.radius = Math.random() * 1.5 + 0.5;
@@ -44,22 +44,21 @@ export default function AnimatedBackground() {
                 this.x += this.vx;
                 this.y += this.vy;
 
-                // Bounce off edges smoothly
-                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                // Added "!" here as well
+                if (this.x < 0 || this.x > canvas!.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas!.height) this.vy *= -1;
             }
 
             draw() {
                 if (!ctx) return;
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(165, 243, 252, 0.4)"; // Soft cyan tint
+                ctx.fillStyle = "rgba(165, 243, 252, 0.4)";
                 ctx.fill();
             }
         }
 
         const initParticles = () => {
-            // Cap particle count on mobile for performance
             const particleCount = window.innerWidth < 768 ? 35 : 80;
             particles = Array.from({ length: particleCount }, () => new Particle());
         };
@@ -67,13 +66,11 @@ export default function AnimatedBackground() {
         const animate = () => {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Update and draw particles
             particles.forEach((p) => {
                 p.update();
                 p.draw();
             });
 
-            // Occasional faint connecting lines
             for (let i = 0; i < particles.length; i++) {
                 for (let j = i + 1; j < particles.length; j++) {
                     const dx = particles[i].x - particles[j].x;
@@ -82,7 +79,6 @@ export default function AnimatedBackground() {
 
                     if (distance < 150) {
                         ctx.beginPath();
-                        // Opacity fades as distance increases
                         ctx.strokeStyle = `rgba(165, 243, 252, ${0.12 - distance / 1250})`;
                         ctx.lineWidth = 0.5;
                         ctx.moveTo(particles[i].x, particles[i].y);
@@ -107,9 +103,7 @@ export default function AnimatedBackground() {
 
     return (
         <div className="fixed inset-0 z-[-1] pointer-events-none">
-            {/* Soft gradient mesh base */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-zinc-900 via-zinc-950 to-black opacity-80" />
-            {/* Dynamic Canvas */}
             <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
         </div>
     );
